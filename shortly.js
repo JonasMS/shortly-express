@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
 
 var db = require('./app/config');
@@ -21,16 +22,31 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+app.use(session({secret: 'secret', authorized: false, cookie: {path: '/', maxAge: 10000}}));
 
 
 app.get('/', 
 function(req, res) {
-  res.redirect('login');
+  console.log(req.session);
+  console.log(req.session.authorized);
+
+  if ( !req.session.authorized ) {
+    res.redirect('http://localhost:4568/login');
+  } else { 
+    res.render('index'); 
+  }
+  // res.redirect('login');
 });
 
 app.get('/login',
 function(req, res) {
   res.render('login');
+});
+
+app.get('/successfullogin', 
+function(req, res) {
+  console.log('made it to successful login');
+  res.redirect('http://localhost:4568/index');
 });
 
 app.get('/signup', 
@@ -46,6 +62,7 @@ function(req, res) {
 app.get('/links', 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
+    checkUser(req, res);
     //if logged in
     res.status(200).send(links.models);
     //else, if not logged in
@@ -55,20 +72,23 @@ function(req, res) {
 
 app.post('/login', 
 function(req, res) {
+  console.log('sess', req.session);
   new User({ username: req.body.username }).fetch().then(function(found) {
     //check if username is in users table
     if (found) {
       //check if username matches with password
       if (req.body.username === this.attributes.password) {
-        console.log(this);
-        res.redirect('http://localhost:4568/index');
+        console.log('successful login');
+        req.session.authorized = true;
+        // app.use(session({secret: 'secret', cookie: {path: '/', maxAge: 60000}}));
+        // res.end();
+        res.redirect('http://localhost:4568/');
       } else {
         console.log('login failed');
         res.redirect('http://localhost:4568/login');
       }
       // console.log(this);
     } else {
-      //nothing for now
       console.log('username not found in database');
     }
   });
@@ -79,8 +99,27 @@ function(req, res) {
   //else 
 });
 
-var checkUser = function(user, callback) {
+app.post('/signup',
+function(req, res) {
+  new User({ username: req.body.username }).fetch().then(function(found) {
+    //if username is available, add user to database
+    if (!found) {
+      this.save({username: req.body.username, password: req.body.password});
+      console.log('created a new user');
+      res.redirect('http://localhost:4568/login');
+    } else {
+      prompt('username taken, try another');
+      res.end();
+    }
+  });
+});
 
+var checkUser = function(req, res, next) {
+  console.log('session: ', req.session);
+  //if user's cookie is valid
+    //direct them to desired address
+  //else
+    //redirect them to login
 };
 
 
