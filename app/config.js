@@ -51,7 +51,16 @@ db.knex.schema.hasTable('users').then(function(exists) {
   }
 });
 
-// db.knex.schema.hasTable('cookies').then(function)
+db.knex.schema.hasTable('cookies').then(function(exists) {
+  if (!exists) {
+    db.knex.schema.createTable('cookies', function(cookie) {
+      cookie.increments('id').primary();
+      cookie.string('expiration', 50);
+    }).then(function(table) {
+      console.log('Created Table', table);
+    });
+  }
+});
 
 
 module.exports = db;

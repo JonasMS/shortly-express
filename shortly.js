@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({secret: 'secret', authorized: false, cookie: {path: '/', maxAge: 10000}}));
+app.use(session({secret: 'secret', authorized: false, cookie: {path: '/', maxAge: 60000}}));
 
 
 app.get('/', 
@@ -103,13 +103,15 @@ function(req, res) {
   });
 });
 
-// var checkUser = function(req, res, next) {
-//   //if user's cookie is valid
-//     //direct them to desired address
-//   //else
-//     //redirect them to login
+var checkUser = function(cookieId, url) {
+ 
+  //check cookieId in database
+    //if user's cookie is valid
+      //direct them to desired address
+  //else
+    //redirect them to login
 
-// };
+};
 
 
 
