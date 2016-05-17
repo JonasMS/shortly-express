@@ -25,20 +25,65 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/', 
 function(req, res) {
-  res.render('index');
+  res.redirect('login');
+});
+
+app.get('/login',
+function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup', 
+function(req, res) {
+  res.render('signup');
 });
 
 app.get('/create', 
 function(req, res) {
-  res.render('index');
+  res.redirect('login');
 });
 
 app.get('/links', 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
+    //if logged in
     res.status(200).send(links.models);
+    //else, if not logged in
+      // res.redirect('login');
   });
 });
+
+app.post('/login', 
+function(req, res) {
+  new User({ username: req.body.username }).fetch().then(function(found) {
+    //check if username is in users table
+    if (found) {
+      //check if username matches with password
+      if (req.body.username === this.attributes.password) {
+        console.log(this);
+        res.redirect('http://localhost:4568/index');
+      } else {
+        console.log('login failed');
+        res.redirect('http://localhost:4568/login');
+      }
+      // console.log(this);
+    } else {
+      //nothing for now
+      console.log('username not found in database');
+    }
+  });
+  
+  
+  //if user exists && username matches w/ paired password
+
+  //else 
+});
+
+var checkUser = function(user, callback) {
+
+};
+
+
 
 app.post('/links', 
 function(req, res) {
