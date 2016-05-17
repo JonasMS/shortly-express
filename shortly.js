@@ -27,15 +27,7 @@ app.use(session({secret: 'secret', authorized: false, cookie: {path: '/', maxAge
 
 app.get('/', 
 function(req, res) {
-  console.log(req.session);
-  console.log(req.session.authorized);
-
-  if ( !req.session.authorized ) {
-    res.redirect('http://localhost:4568/login');
-  } else { 
-    res.render('index'); 
-  }
-  // res.redirect('login');
+  req.session.authorized ? res.render('index') : res.redirect('http://localhost:4568/login');
 });
 
 app.get('/login',
@@ -62,11 +54,7 @@ function(req, res) {
 app.get('/links', 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
-    checkUser(req, res);
-    //if logged in
-    res.status(200).send(links.models);
-    //else, if not logged in
-      // res.redirect('login');
+    req.session.authorized ? res.status(200).send(links.models) : res.redirect('/login');
   });
 });
 
@@ -82,7 +70,7 @@ function(req, res) {
         req.session.authorized = true;
         // app.use(session({secret: 'secret', cookie: {path: '/', maxAge: 60000}}));
         // res.end();
-        res.redirect('http://localhost:4568/');
+        res.redirect('/');
       } else {
         console.log('login failed');
         res.redirect('http://localhost:4568/login');
@@ -90,6 +78,7 @@ function(req, res) {
       // console.log(this);
     } else {
       console.log('username not found in database');
+      res.redirect('/login');
     }
   });
   
@@ -106,7 +95,7 @@ function(req, res) {
     if (!found) {
       this.save({username: req.body.username, password: req.body.password});
       console.log('created a new user');
-      res.redirect('http://localhost:4568/login');
+      res.redirect('/');
     } else {
       prompt('username taken, try another');
       res.end();
@@ -114,13 +103,13 @@ function(req, res) {
   });
 });
 
-var checkUser = function(req, res, next) {
-  console.log('session: ', req.session);
-  //if user's cookie is valid
-    //direct them to desired address
-  //else
-    //redirect them to login
-};
+// var checkUser = function(req, res, next) {
+//   //if user's cookie is valid
+//     //direct them to desired address
+//   //else
+//     //redirect them to login
+
+// };
 
 
 

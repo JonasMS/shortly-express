@@ -51,5 +51,7 @@ db.knex.schema.hasTable('users').then(function(exists) {
   }
 });
 
+// db.knex.schema.hasTable('cookies').then(function)
+
 
 module.exports = db;
