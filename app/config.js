@@ -44,23 +44,11 @@ db.knex.schema.hasTable('users').then(function(exists) {
     db.knex.schema.createTable('users', function(user) {
       user.increments('id').primary();
       user.string('username', 20);
-      user.string('password', 20);
+      user.string('password', 64);
     }).then(function(table) {
       console.log('Created Table', table);
     });
   }
 });
-
-db.knex.schema.hasTable('cookies').then(function(exists) {
-  if (!exists) {
-    db.knex.schema.createTable('cookies', function(cookie) {
-      cookie.increments('id').primary();
-      cookie.string('expiration', 50);
-    }).then(function(table) {
-      console.log('Created Table', table);
-    });
-  }
-});
-
 
 module.exports = db;
