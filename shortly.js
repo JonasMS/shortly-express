@@ -4,6 +4,8 @@ var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var bcrypt = require('bcrypt-nodejs');
+var passport = require('passport');
+var Strategy = require('passport-facebook').Strategy;
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -23,6 +25,30 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 app.use(session({secret: 'secret', rolling: true, authorized: false, cookie: {path: '/', maxAge: 300000}}));
+
+passport.use(new Strategy({
+  clientID: '564862233697491',
+  clientSecret: 'justin',
+  callbackURL: 'http://localhost:3000/login/facebook/return'
+},
+  function(accessToken, refreshToken, profile, cb) {
+    console.log(accessToken, refreshToken, profile, cb);
+    // In this example, the user's Facebook profile is supplied as the user
+    // record.  In a production-quality application, the Facebook profile should
+    // be associated with a user record in the application's database, which
+    // allows for account linking and authentication with other identity
+    // providers.
+    return cb(null, profile);
+  }));
+
+
+
+
+
+
+
+
+
 
 app.get('/', 
 function(req, res) {
